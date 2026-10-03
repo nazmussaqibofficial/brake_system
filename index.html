@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brake Hydraulic Ratio Calculator</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #ffffff;
+            --accent-color: #ff5722;
+            --border-color: #333333;
+            --result-bg: #2c2c2c;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: var(--text-color);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #bbbbbb;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e64a19;
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .ratio-highlight {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .verdict-box {
+            background-color: var(--result-bg);
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .verdict-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .verdict-notes {
+            font-size: 0.85rem;
+            color: #cccccc;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Brake Hydraulic Ratio Calculator</h1>
+
+        <div class="input-group">
+            <label for="calDia">Single Caliper Piston Diameter (mm)</label>
+            <input type="number" id="calDia" placeholder="e.g., 30" step="0.1">
+        </div>
+
+        <div class="input-group">
+            <label for="numPistons">Total Active Caliper Pistons (e.g., 2, 4)</label>
+            <input type="number" id="numPistons" placeholder="e.g., 4">
+        </div>
+
+        <div class="input-group">
+            <label for="mcDia">Master Cylinder Bore (mm)</label>
+            <input type="number" id="mcDia" placeholder="e.g., 14" step="0.1">
+        </div>
+
+        <button onclick="calculateRatio()">Calculate Ratio</button>
+
+        <div class="results" id="results">
+            <div class="result-item">
+                <span>Total Caliper Area:</span>
+                <span id="totalArea">0.00 mm²</span>
+            </div>
+            <div class="result-item">
+                <span>Master Cylinder Area:</span>
+                <span id="mcArea">0.00 mm²</span>
+            </div>
+            
+            <div class="ratio-highlight">
+                Ratio: <span id="ratioResult">0.00 : 1</span>
+            </div>
+
+            <div class="verdict-box">
+                <div class="verdict-title" id="verdict">VERDICT</div>
+                <div class="verdict-notes" id="notes">Notes will appear here.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateRatio() {
+            const calDia = parseFloat(document.getElementById('calDia').value);
+            const numPistons = parseInt(document.getElementById('numPistons').value);
+            const mcDia = parseFloat(document.getElementById('mcDia').value);
+
+            // Validate inputs
+            if (!calDia || !numPistons || !mcDia || calDia <= 0 || numPistons <= 0 || mcDia <= 0) {
+                alert("Please enter valid positive numbers for all fields.");
+                return;
+            }
+
+            // Calculations
+            const singleCaliperArea = (Math.PI * Math.pow(calDia, 2)) / 4.0;
+            const totalCaliperArea = singleCaliperArea * numPistons;
+            const mcArea = (Math.PI * Math.pow(mcDia, 2)) / 4.0;
+            const ratio = totalCaliperArea / mcArea;
+
+            // Determine Verdict
+            let verdict = "";
+            let notes = "";
+
+            if (ratio < 10.0) {
+                verdict = "WOODEN / STIFF";
+                notes = "Insufficient leverage. Requires extremely high hand effort for minimal stopping power. Lever will barely move.";
+            } else if (ratio >= 10.0 && ratio < 14.0) {
+                verdict = "FIRM / CRISP";
+                notes = "Sport profile. Excellent feedback with short lever travel. Great for track or aggressive street riding.";
+            } else if (ratio >= 14.0 && ratio <= 18.0) {
+                verdict = "PROGRESSIVE / HIGH LEVERAGE";
+                notes = "The sweet spot for everyday street riding. Excellent modulation and stopping power without excess fatigue.";
+            } else {
+                verdict = "MUSHY / SOFT";
+                notes = "Dangerously high ratio. High risk of pulling the lever all the way to the grip before achieving maximum braking force.";
+            }
+
+            // Update UI
+            document.getElementById('totalArea').innerText = totalCaliperArea.toFixed(2) + " mm²";
+            document.getElementById('mcArea').innerText = mcArea.toFixed(2) + " mm²";
+            document.getElementById('ratioResult').innerText = ratio.toFixed(2) + " : 1";
+            document.getElementById('verdict').innerText = verdict;
+            document.getElementById('notes').innerText = notes;
+            
+            // Reveal the results block
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
