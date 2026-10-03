@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brake Hydraulic Ratio Calculator by Mr. Q</title>
+    <title>Brake Hydraulic Ratio Calculator by Mr.Q</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -51,7 +51,7 @@
             color: #bbbbbb;
         }
 
-        input[type="number"] {
+        input[type="number"], select {
             width: 100%;
             padding: 12px;
             border: 1px solid var(--border-color);
@@ -62,9 +62,16 @@
             box-sizing: border-box;
         }
 
-        input[type="number"]:focus {
+        input[type="number"]:focus, select:focus {
             outline: none;
             border-color: var(--accent-color);
+        }
+
+        .helper-text {
+            font-size: 0.8rem;
+            color: #888888;
+            margin-top: 5px;
+            margin-bottom: 15px;
         }
 
         button {
@@ -78,6 +85,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            margin-top: 10px;
         }
 
         button:hover {
@@ -132,16 +140,47 @@
         <h1>Brake Hydraulic Ratio Calculator By Mr.Q</h1>
 
         <div class="input-group">
-            <label for="calDia">Single Caliper Piston Diameter (mm)</label>
-            <input type="number" id="calDia" placeholder="e.g., 30" step="0.1">
+            <label for="numCalipers">Number of Calipers on Wheel</label>
+            <select id="numCalipers">
+                <option value="1">1 (Single Disc)</option>
+                <option value="2">2 (Dual Disc)</option>
+            </select>
         </div>
 
         <div class="input-group">
-            <label for="numPistons">Total Active Caliper Pistons (e.g., 2, 4)</label>
-            <input type="number" id="numPistons" placeholder="e.g., 4">
+            <label for="pistonSetup">Caliper Piston Configuration</label>
+            <select id="pistonSetup" onchange="toggleSetup()">
+                <option value="uniform">Uniform (All pistons are the same size)</option>
+                <option value="staggered">Staggered (4-Piston: 2 large + 2 small)</option>
+            </select>
         </div>
 
-        <div class="input-group">
+        <!-- Inputs for Uniform Pistons -->
+        <div id="uniformInputs">
+            <div class="input-group">
+                <label for="calDia">Piston Diameter (mm)</label>
+                <input type="number" id="calDia" placeholder="e.g., 32" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="numPistonsPerCaliper">Pistons PER Caliper (e.g., 2, 4)</label>
+                <input type="number" id="numPistonsPerCaliper" placeholder="e.g., 4">
+            </div>
+        </div>
+
+        <!-- Inputs for Staggered Pistons -->
+        <div id="staggeredInputs" style="display: none;">
+            <div class="input-group">
+                <label for="calDia1">Large Piston Diameter (mm)</label>
+                <input type="number" id="calDia1" placeholder="e.g., 34" step="0.1">
+            </div>
+            <div class="input-group">
+                <label for="calDia2">Small Piston Diameter (mm)</label>
+                <input type="number" id="calDia2" placeholder="e.g., 30" step="0.1">
+            </div>
+            <div class="helper-text">*Calculation assumes 2 pistons of the large size and 2 pistons of the small size inside each caliper.</div>
+        </div>
+
+        <div class="input-group" style="margin-top: 10px;">
             <label for="mcDia">Master Cylinder Bore (mm)</label>
             <input type="number" id="mcDia" placeholder="e.g., 14" step="0.1">
         </div>
@@ -170,20 +209,59 @@
     </div>
 
     <script>
+        function toggleSetup() {
+            const setup = document.getElementById('pistonSetup').value;
+            if (setup === 'uniform') {
+                document.getElementById('uniformInputs').style.display = 'block';
+                document.getElementById('staggeredInputs').style.display = 'none';
+            } else {
+                document.getElementById('uniformInputs').style.display = 'none';
+                document.getElementById('staggeredInputs').style.display = 'block';
+            }
+            // Hide results when switching configs to avoid confusion
+            document.getElementById('results').style.display = 'none';
+        }
+
         function calculateRatio() {
-            const calDia = parseFloat(document.getElementById('calDia').value);
-            const numPistons = parseInt(document.getElementById('numPistons').value);
+            const numCalipers = parseInt(document.getElementById('numCalipers').value);
+            const setup = document.getElementById('pistonSetup').value;
             const mcDia = parseFloat(document.getElementById('mcDia').value);
 
-            // Validate inputs
-            if (!calDia || !numPistons || !mcDia || calDia <= 0 || numPistons <= 0 || mcDia <= 0) {
-                alert("Please enter valid positive numbers for all fields.");
+            if (!mcDia || mcDia <= 0) {
+                alert("Please enter a valid Master Cylinder Bore.");
                 return;
             }
 
-            // Calculations
-            const singleCaliperArea = (Math.PI * Math.pow(calDia, 2)) / 4.0;
-            const totalCaliperArea = singleCaliperArea * numPistons;
+            let totalCaliperArea = 0;
+
+            if (setup === 'uniform') {
+                const calDia = parseFloat(document.getElementById('calDia').value);
+                const numPistonsPerCaliper = parseInt(document.getElementById('numPistonsPerCaliper').value);
+                
+                if (!calDia || !numPistonsPerCaliper || calDia <= 0 || numPistonsPerCaliper <= 0) {
+                    alert("Please enter valid numbers for uniform piston diameter and quantity.");
+                    return;
+                }
+                const singleCaliperArea = (Math.PI * Math.pow(calDia, 2)) / 4.0;
+                totalCaliperArea = singleCaliperArea * numPistonsPerCaliper * numCalipers;
+                
+            } else {
+                const calDia1 = parseFloat(document.getElementById('calDia1').value);
+                const calDia2 = parseFloat(document.getElementById('calDia2').value);
+                
+                if (!calDia1 || !calDia2 || calDia1 <= 0 || calDia2 <= 0) {
+                    alert("Please enter valid numbers for both staggered piston sizes.");
+                    return;
+                }
+                // Calculate area of two Large pistons + two Small pistons per caliper
+                const areaLargePair = 2 * ((Math.PI * Math.pow(calDia1, 2)) / 4.0);
+                const areaSmallPair = 2 * ((Math.PI * Math.pow(calDia2, 2)) / 4.0);
+                
+                const singleCaliperArea = areaLargePair + areaSmallPair;
+                totalCaliperArea = singleCaliperArea * numCalipers;
+            }
+
+            // Master Cylinder Calculation
             const mcArea = (Math.PI * Math.pow(mcDia, 2)) / 4.0;
             const ratio = totalCaliperArea / mcArea;
 
