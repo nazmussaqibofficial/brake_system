@@ -197,8 +197,8 @@
                 <span id="mcArea">0.00 mm²</span>
             </div>
             
-            <div class="ratio-highlight">
-                Ratio: <span id="ratioResult">0.00 : 1</span>
+            <div class="ratio-highlight"> 
+                 <span id="ratioResult"></span>
             </div>
 
             <div class="verdict-box">
@@ -286,7 +286,7 @@
             // Update UI
             document.getElementById('totalArea').innerText = totalCaliperArea.toFixed(2) + " mm²";
             document.getElementById('mcArea').innerText = mcArea.toFixed(2) + " mm²";
-            document.getElementById('ratioResult').innerText = ratio.toFixed(2) + " : 1";
+           /* document.getElementById('ratioResult').innerText = ratio.toFixed(2) + " : 1"; */
             document.getElementById('verdict').innerText = verdict;
             document.getElementById('notes').innerText = notes;
             
