@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brake Hydraulic Ratio Calculator by Mr.Q</title>
+    <title>Caliper & Master Cylinder Compatibility Checker by Mr.Q</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -137,7 +137,7 @@
 <body>
 
     <div class="container">
-        <h1>Brake Hydraulic Ratio Calculator By Mr.Q</h1>
+        <h1>Caliper & Master Cylinder Compatibility Checker by Mr.Q</h1>
 
         <div class="input-group">
             <label for="numCalipers">Number of Calipers on Wheel</label>
@@ -269,24 +269,33 @@
             let verdict = "";
             let notes = "";
 
-            if (ratio < 10.0) {
-                verdict = "WOODEN / STIFF";
+            if (ratio < 7.0) {
+                verdict = "Not Acceptable";
                 notes = "Insufficient leverage. Requires extremely high hand effort for minimal stopping power. Lever will barely move.";
-            } else if (ratio >= 10.0 && ratio < 14.0) {
+            } else if (ratio >= 7.10 && ratio < 13.0 && setup === 'uniform' && parseInt(document.getElementById('numPistonsPerCaliper').value) === 2) {
                 verdict = "ACCEPTABLE"; /*FIRM / CRISP*/
-                notes = "Sport profile. Excellent feedback with short lever travel. Great for track or aggressive street riding.";
-            } else if (ratio >= 14.0 && ratio <= 18.0) {
-                verdict = "ACCEPTABLE"; /*PROGRESSIVE / HIGH LEVERAGE*/
-                notes = "The sweet spot for everyday street riding. Excellent modulation and stopping power without excess fatigue.";
+                notes = "A 2-piston caliper that typically comes paired with a 12mm or 12.7mm master cylinder can be upgraded to a 13mm or 14mm bore for much firmer lever feedback.";
+            } else if (ratio >= 14 && ratio < 17.0 && setup === 'uniform' && parseInt(document.getElementById('numPistonsPerCaliper').value) === 4) {
+                verdict = "ACCEPTABLE"; /*FIRM / CRISP*/
+                notes = "Sweet Spot for this 4 Pot";
+            } else if (ratio > 17.0 && setup === 'uniform' && parseInt(document.getElementById('numPistonsPerCaliper').value) === 4 && parseInt(document.getElementById('numCalipers').value) === 1) { /* 18.0 */
+                verdict = "Not Recommended"; /*PROGRESSIVE / HIGH LEVERAGE*/
+                notes = "Not preffered below stock";
+            } else if (ratio < 14.0 && setup === 'uniform' && parseInt(document.getElementById('numPistonsPerCaliper').value) === 4) { /* 18.0 */
+                verdict = "Not Recommended"; /*PROGRESSIVE / HIGH LEVERAGE*/
+                notes = "Don't go too far from stock.";
+            } else if (ratio >= 17.1 && ratio <= 26.0 && setup === 'uniform' && parseInt(document.getElementById('numPistonsPerCaliper').value) === 4 && parseInt(document.getElementById('numCalipers').value) === 2) { 
+    verdict = "ACCEPTABLE"; /*PROGRESSIVE / HIGH LEVERAGE*/
+    notes = "For Dual Disc Setup";
             } else {
-                verdict = "MUSHY / SOFT";
-                notes = "Dangerously high ratio. High risk of pulling the lever all the way to the grip before achieving maximum braking force.";
-            }
+                verdict = "Insufficient Leverage";
+                notes = "High ratio. High risk of pulling the lever all the way to the grip before achieving maximum braking force.";
+            } 
 
             // Update UI
             document.getElementById('totalArea').innerText = totalCaliperArea.toFixed(2) + " mm²";
             document.getElementById('mcArea').innerText = mcArea.toFixed(2) + " mm²";
-           /* document.getElementById('ratioResult').innerText = ratio.toFixed(2) + " : 1"; */
+            document.getElementById('ratioResult').innerText = ratio.toFixed(2) + " : 1";
             document.getElementById('verdict').innerText = verdict;
             document.getElementById('notes').innerText = notes;
             
